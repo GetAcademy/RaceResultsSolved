@@ -1,10 +1,10 @@
 ﻿namespace RaceResults
 {
-    internal class Results
+    internal class ResultService
     {
         public readonly List<TimeMeasurement> _timeMeasurements;
 
-        public Results()
+        public ResultService()
         {
             var lines = File.ReadAllLines("timedata.csv");
             _timeMeasurements = new List<TimeMeasurement>();
@@ -15,35 +15,23 @@
                 var time = TimeOnly.Parse(parts[1]);
                 var km = parts[2];
                 var timeMeasurement = GetOrCreateTimeMeasurement(bibNumber);
-                if (km == "0") timeMeasurement.TimeAtStart = time;
-                else if (km == "5") timeMeasurement.TimeAt5K = time;
-                else if (km == "10") timeMeasurement.TimeAt10K = time;
+                timeMeasurement.AddTime(km, time);
             }
         }
 
         public void ShowReport()
         {
-            var finished = new List<TimeMeasurement>();
+            var finished = new List<Result>();
             foreach (var timeMeasurement in _timeMeasurements)
             {
-                if (timeMeasurement.TimeAt10K != null
-                && timeMeasurement.TimeAtStart != null)
-                {
-                    finished.Add(timeMeasurement);
-                }
+                var result = timeMeasurement.GetResult();
+                if(result!=null)finished.Add(result);
             }
-            finished.Sort((tmA, tmB) =>
-            {
-                var elapsedA = tmA.TimeAt10K.Value.ToTimeSpan() - tmA.TimeAtStart.Value.ToTimeSpan();
-                var elapsedB = tmB.TimeAt10K.Value.ToTimeSpan() - tmB.TimeAtStart.Value.ToTimeSpan();
-                return Convert.ToInt32(elapsedA.TotalMilliseconds - elapsedB.TotalMilliseconds);
-            });
+            finished.Sort(Result.Compare);
             Console.WriteLine("Startnr Tid");
-            foreach (var timeMeasurement in finished)
+            foreach (var result in finished)
             {
-                var elapsed = timeMeasurement.TimeAt10K.Value.ToTimeSpan()
-                              - timeMeasurement.TimeAtStart.Value.ToTimeSpan();
-                Console.WriteLine($"{timeMeasurement.BibNumber,7} {elapsed}");
+                result.ShowAsTableRow();
             }
         }
 

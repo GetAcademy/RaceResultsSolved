@@ -1,4 +1,4 @@
 ﻿using RaceResults;
 
-var results = new Results();
+var results = new ResultService();
 results.ShowReport();

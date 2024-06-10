@@ -25,7 +25,7 @@
             foreach (var timeMeasurement in _timeMeasurements)
             {
                 var result = timeMeasurement.GetResult();
-                if(result!=null)finished.Add(result);
+                if (result != null) finished.Add(result);
             }
             finished.Sort(Result.Compare);
             Console.WriteLine("Startnr Tid");
@@ -39,10 +39,10 @@
         {
             foreach (var tm in _timeMeasurements)
             {
-                if (tm.BibNumber == bibNumber) return tm;
+                if (tm.Matches(bibNumber)) return tm;
             }
 
-            var timeMeasurement = new TimeMeasurement { BibNumber = bibNumber };
+            var timeMeasurement = new TimeMeasurement(bibNumber);
             _timeMeasurements.Add(timeMeasurement);
             return timeMeasurement;
         }
